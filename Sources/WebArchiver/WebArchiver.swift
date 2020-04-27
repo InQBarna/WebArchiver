@@ -34,7 +34,7 @@ public enum ArchivingError: LocalizedError {
 
 public class WebArchiver {
     
-    public static func archive(url: URL, cookies: [HTTPCookie] = [], includeJavascript: Bool = true, skipCache: Bool = false, completion: @escaping (ArchivingResult) -> ()) {
+    public static func archive(url: URL, inSession: URLSession, includeJavascript: Bool = true, skipCache: Bool = false, completion: @escaping (ArchivingResult) -> ()) {
         
         guard let scheme = url.scheme, scheme == "https" else {
             let result = ArchivingResult(plistData: nil, errors: [ArchivingError.unsupportedUrl])
@@ -43,7 +43,7 @@ public class WebArchiver {
         }
         
         let cachePolicy: URLRequest.CachePolicy = skipCache ? .reloadIgnoringLocalAndRemoteCacheData : .returnCacheDataElseLoad
-        let session = ArchivingSession(cachePolicy: cachePolicy, cookies: cookies, completion: completion)
+        let session = ArchivingSession(session: inSession, cachePolicy: cachePolicy, completion: completion)
         
         session.load(url: url, fallback: nil) { mainResource in
             

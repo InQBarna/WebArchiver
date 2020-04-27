@@ -16,21 +16,15 @@ class ArchivingSession {
         return plistEncoder
     }()
     
-    private let urlSession: URLSession
+    private var urlSession: URLSession
     private let completion: (ArchivingResult) -> ()
     private let cachePolicy: URLRequest.CachePolicy
-    private let cookies: [HTTPCookie]
     private var errors: [Error] = []
     private var pendingTaskCount: Int = 0
     
-    init(cachePolicy: URLRequest.CachePolicy, cookies: [HTTPCookie], completion: @escaping (ArchivingResult) -> ()) {
-        let configuration = URLSessionConfiguration.default
-        configuration.httpMaximumConnectionsPerHost = 5
-        configuration.timeoutIntervalForRequest = 60
-        configuration.timeoutIntervalForResource = 60
-        self.urlSession = URLSession(configuration: configuration, delegate: nil, delegateQueue: nil)
+    init(session: URLSession, cachePolicy: URLRequest.CachePolicy, completion: @escaping (ArchivingResult) -> ()) {
+        self.urlSession = session
         self.cachePolicy = cachePolicy
-        self.cookies = cookies
         self.completion = completion
     }
     
@@ -39,7 +33,6 @@ class ArchivingSession {
 
         var request = URLRequest(url: url)
         request.cachePolicy = cachePolicy
-        urlSession.configuration.httpCookieStorage?.setCookies(cookies, for: url, mainDocumentURL: nil)
         let task = urlSession.dataTask(with: request) { (data, response, error) in
             self.pendingTaskCount = self.pendingTaskCount - 1
             
