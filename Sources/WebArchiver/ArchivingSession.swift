@@ -25,7 +25,7 @@ class ArchivingSession {
     
     init(cachePolicy: URLRequest.CachePolicy, cookies: [HTTPCookie], completion: @escaping (ArchivingResult) -> ()) {
         let sessionQueue = OperationQueue()
-        sessionQueue.maxConcurrentOperationCount = 1
+        sessionQueue.maxConcurrentOperationCount = 5
         sessionQueue.name = "WebArchiverWorkQueue"
         self.urlSession = URLSession(configuration: .ephemeral, delegate: nil, delegateQueue: sessionQueue)
         self.cachePolicy = cachePolicy
