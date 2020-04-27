@@ -24,10 +24,11 @@ class ArchivingSession {
     private var pendingTaskCount: Int = 0
     
     init(cachePolicy: URLRequest.CachePolicy, cookies: [HTTPCookie], completion: @escaping (ArchivingResult) -> ()) {
-        let sessionQueue = OperationQueue()
-        sessionQueue.maxConcurrentOperationCount = 5
-        sessionQueue.name = "WebArchiverWorkQueue"
-        self.urlSession = URLSession(configuration: .ephemeral, delegate: nil, delegateQueue: sessionQueue)
+        let configuration = URLSessionConfiguration.default
+        configuration.httpMaximumConnectionsPerHost = 5
+        configuration.timeoutIntervalForRequest = 60
+        configuration.timeoutIntervalForResource = 60
+        self.urlSession = URLSession(configuration: configuration, delegate: nil, delegateQueue: nil)
         self.cachePolicy = cachePolicy
         self.cookies = cookies
         self.completion = completion
@@ -35,10 +36,10 @@ class ArchivingSession {
     
     func load(url: URL, fallback: WebArchive?, expand: @escaping (WebArchiveResource) throws -> WebArchive ) {
         pendingTaskCount = pendingTaskCount + 1
+
         var request = URLRequest(url: url)
         request.cachePolicy = cachePolicy
         urlSession.configuration.httpCookieStorage?.setCookies(cookies, for: url, mainDocumentURL: nil)
-        
         let task = urlSession.dataTask(with: request) { (data, response, error) in
             self.pendingTaskCount = self.pendingTaskCount - 1
             
