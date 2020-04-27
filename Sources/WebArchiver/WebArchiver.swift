@@ -87,6 +87,7 @@ public class WebArchiver {
         
         var references: [String] = []
         references += doc.xpath("//img[@src]").compactMap{ $0["src"] } // images
+        references += doc.xpath("//img[@data-src]").compactMap{ $0["data-src"] } // images
         references += doc.xpath("//link[@rel='stylesheet'][@href]").compactMap{ $0["href"] } // css
         if includeJavascript {
             references += doc.xpath("//script[@src]").compactMap{ $0["src"] } // javascript
