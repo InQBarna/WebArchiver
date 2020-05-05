@@ -18,11 +18,11 @@ class ArchivingSession {
     
     private var urlSession: URLSession
     private let completion: (ArchivingResult) -> ()
-    private let cachePolicy: URLRequest.CachePolicy
+    private let cachePolicy: URLRequest.CachePolicy?
     private var errors: [Error] = []
     private var pendingTaskCount: Int = 0
     
-    init(session: URLSession, cachePolicy: URLRequest.CachePolicy, completion: @escaping (ArchivingResult) -> ()) {
+    init(session: URLSession, cachePolicy: URLRequest.CachePolicy? = nil, completion: @escaping (ArchivingResult) -> ()) {
         self.urlSession = session
         self.cachePolicy = cachePolicy
         self.completion = completion
@@ -32,7 +32,7 @@ class ArchivingSession {
         pendingTaskCount = pendingTaskCount + 1
 
         var request = URLRequest(url: url)
-        request.cachePolicy = cachePolicy
+        request.cachePolicy = cachePolicy ?? urlSession.configuration.requestCachePolicy
         let task = urlSession.dataTask(with: request) { (data, response, error) in
             self.pendingTaskCount = self.pendingTaskCount - 1
             
